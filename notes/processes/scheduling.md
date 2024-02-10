@@ -20,12 +20,12 @@
 - can be added in time sharing system is degree of multiprogramming needs to decrease.
 - swapped out processes are stored in a space called the swap space in the secondary storage and this is different from the ready queue.
 ```mermaid
-graph TD;
-    partially executed swapped-out process-->ready queue;
-    ready queue-->CPU;
-    CPU-->end;
-    CPU-->I/O waiting queues;
-    CPU-->partially executed swapped-out process;
-    I/O waiting queues-->I/O;
-    I/O-->ready queue;
+flowchart TD
+    A[partially executed swapped-out process] --> B[ready queue]
+    B --> C[CPU]
+    C -->D[end]
+    C -->E[I/O waiting queues]
+    C -->A
+    E-->F[I/O]
+    F-->B
 ```

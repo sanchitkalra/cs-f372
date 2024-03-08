@@ -9,6 +9,8 @@
 - the thread IDs make sense only at the process level, not the system level
 - thread identifiers can be recycled
 - on linux, we need to pass the `-pthread` option to link the pthread library with our code. command becomes: `gcc file.c -o exec-name -pthread`
+- any variables declared in the thread function are available only in the scope of the thread
+- when we're creating multiple threads, we can just store tids in an array and call required functions by looping over this array
 
 ## pthread_attr_t
 
@@ -18,13 +20,13 @@
 
 - used to create threads.
 - syntax: `int pthread_create(pthread_t* id, const pthread_attr_t* attr, void* (*start_routine)(void*), void* arg)`
-    - id:
-    - attr: pointer to a structure that holds attributes initialised via the pthread_attr_int function
-    - (fn): the argument holds a ref to the function that needs to be executed. this tells the signature of the function.
-        - (*start_routine): this is a pointer to the function with the name start_routine. this name is only a placeholder value
-        - the last (void*): this is a single argument that can be passed to the thread function (start_routine). if we need to pass multiple arguments, we can pass it as a structure
-        - the first void*: this is the return type of the function (start_routine)
-    - arg: the argument that is to be passed to the function start_routine. we use this incase we are specifying only the name of the function in the 3rd argument because we will specify it as `fn` and not `fn(arg)`.
+  - id:
+  - attr: pointer to a structure that holds attributes initialised via the pthread_attr_int function
+  - (fn): the argument holds a ref to the function that needs to be executed. this tells the signature of the function.
+    - (\*start_routine): this is a pointer to the function with the name start_routine. this name is only a placeholder value
+    - the last (void\*): this is a single argument that can be passed to the thread function (start_routine). if we need to pass multiple arguments, we can pass it as a structure
+    - the first void\*: this is the return type of the function (start_routine)
+  - arg: the argument that is to be passed to the function start_routine. we use this incase we are specifying only the name of the function in the 3rd argument because we will specify it as `fn` and not `fn(arg)`.
 - if the call succeeds, the returns 0, else a non-zero error code.
 
 ## pthread_equal
@@ -43,8 +45,8 @@
 
 - creator thread wait for threads it created to finish
 - syntax: `void pthread_join(pthread_t tid, void** retval)`
-    - tid: the identifier of the thread for which join is being invoked and the parent is waiting for
-    - retval: the return value of the thread with identifier tid. if we don't care for this value we can just send NULL here
+  - tid: the identifier of the thread for which join is being invoked and the parent is waiting for
+  - retval: the return value of the thread with identifier tid. if we don't care for this value we can just send NULL here
 - the function call will return as soon as the thread with tid finishes
 - if the parent waits for it's children threads it is called syncronous threading, else it is called async threading
 - if the parent thread dies, irrespective of this function being used, all threads will exit because threads only live in the context of the parent thread

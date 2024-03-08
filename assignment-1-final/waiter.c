@@ -38,21 +38,14 @@ int main() {
     int *controlPointers = ptr;
     int run = 1;
     while (run) {
-        // while (controlPointers[6] == 0) {
-        //     printf("");
-        // }
-        while (*(ptr + 6) == 0) {
+        while (controlPointers[6] == 0) {
+            printf("");
         }
 
-        // if (controlPointers[6] > 0) {
-        //     // printf("Exiting.");
-        //     // signal to exit
-        //     run = 0;
-        //     break;
-        // }
-
-        if (*(ptr + 6) > 0) {
-            // sign to exit
+        if (controlPointers[6] > 0) {
+            printf("Exiting.");
+            // signal to exit
+            run = 0;
             break;
         }
 
@@ -76,74 +69,53 @@ int main() {
         }
         fclose(fptr);
 
-        // while (controlPointers[0] <= 0) {
-        // }
-
-        while (*(ptr + 0) <= 0) {
+        while (controlPointers[0] <= 0) {
         }
 
-        // int customers = controlPointers[0];
-        int customers = *(ptr + 0);
+        int customers = controlPointers[0];
         int itemsOrderedCustomers[customers];
 
         for (int k = 0; k < customers;) {
-            printf("k = %d\n", k);
-            // printf("loop %d %d %d\n", k, controlPointers[1],
-            //        controlPointers[2]);
-            // while (controlPointers[1] != k || controlPointers[2] < 0) {
-            //     // printf("cp %d, %d , %d" , controlPointers[1],
-            //     // controlPointers[2], customers );
-            // }
-
-            // while (controlPointers[2] < 0) {
-            // }
-            while (*(ptr + 2) < 0) {
+            // printf("cp-out %d, %d", controlPointers[1], controlPointers[2] );
+            while (controlPointers[1] != k && controlPointers[2] < 0) {
+                // printf("cp %d, %d , %d" , controlPointers[1],
+                // controlPointers[2], customers );
             }
 
-            // int itemsOrderedN = controlPointers[2];
-            int itemsOrderedN = *(ptr + 2);
-            printf("itms %d\n", itemsOrderedN);
+            int itemsOrderedN = controlPointers[2];
 
-            int *orderPtr = ptr + 7 + (10 * k);
+            int *orderPtr = ptr + 10 * k + 7;
 
             int flag = 0;
 
-            int j = 0;
-            while (j < itemsOrderedN) {
-                printf("validating for k = %d & i/p = %d \n", k,
-                       *(ptr + 7 + (10 * k) + j));
-                if (*(ptr + 7 + (10 * k) + j) > itemsInMenu ||
-                    *(ptr + 7 + (10 * k) + j) <= 0) {
-                    printf("invalid order for %d\n", j);
+            while (itemsOrderedN--) {
+                if (orderPtr[itemsOrderedN] <= 0 ||
+                    orderPtr[itemsOrderedN] > itemsInMenu) {
+                    controlPointers[3] = -1;
+                    printf("");
                     flag = 1;
-                    // controlPointers[3] = -1;
                     break;
                 }
-                j++;
             }
 
-            // while (itemsOrderedN--) {
-            //     if (orderPtr[itemsOrderedN] <= 0 ||
-            //         orderPtr[itemsOrderedN] > itemsInMenu) {
-            //         controlPointers[3] = -1;
-            //         printf("invalid order %d\n", orderPtr[itemsOrderedN]);
-            //         flag = 1;
-            //         break;
-            //     }
-            // }
+            controlPointers[3] = 1;
 
-            itemsOrderedCustomers[k] = itemsOrderedN;
+            itemsOrderedCustomers[k] = controlPointers[2];
 
-            if (flag == 0) {
+            if (flag == 0)
                 k++;
-                // controlPointers[3] = 1;
-                *(ptr + 3) = 1;
-            } else {
+            else
                 k = 0;
-                // controlPointers[3] = -1;
-                *(ptr + 3) = -1;
-            }
         }
+
+        char *key_seed = (char *)malloc(9 * sizeof(char));
+        sprintf(key_seed, "manager_%d", waiterID);
+
+        int key3 = ftok(key_seed, 'B');
+
+        // key_t key3 = ftok("manager", 'C');  //Connect to Waiter
+        int shmid4 = shmget(key3, 1024, 0666 | IPC_CREAT);
+        int *ptr2 = (int *)shmat(shmid4, NULL, 0);
 
         // valid order for whole table rec
         // calc bill now
@@ -162,8 +134,8 @@ int main() {
         }
 
         // printf("total bill (waiter): %d\n", totalAmt);
-
         controlPointers[4] = totalAmt;
+        *ptr2 = totalAmt;
         controlPointers[5] = 1;
     }
 

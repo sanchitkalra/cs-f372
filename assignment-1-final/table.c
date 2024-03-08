@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/shm.h>
+#include <sys/wait.h>
 #include <unistd.h>
-
 #define MSG_SIZE 32
 
 int main() {
@@ -33,9 +33,6 @@ int main() {
             "5): ");
         int customers;
         scanf("%d", &customers);
-
-        memset(ptr, 0, sizeof(int) * 57);
-
         int itemsInMenu = 0;
 
         FILE *fptr;
@@ -47,35 +44,30 @@ int main() {
         fclose(fptr);
 
         if (customers == -1) {
-            // controlPointers[6] = 1;  // signal the waiter to exit
-            *(ptr + 6) = 1;
-            // printf("%d ", controlPointers[6]);
+            controlPointers[6] = 1;  // signal the waiter to exit
+            printf("%d ", controlPointers[6]);
 
-            // printf("value changed.");
+            printf("value changed.");
             break;
         }
-        // controlPointers[6] = -1;  // waiter process exit, default -1, no exit
-        *(ptr + 6) = -1;
+        controlPointers[6] = -1;  // waiter process no exit, -1, no exit
 
         // set 0th pointer to number of customers
-        // controlPointers[0] = customers;
-        *(ptr + 0) = customers;
+        controlPointers[0] = customers;
         // set control pointers which are used as flags to 0
         controlPointers[5] = -1;  // bill amt written
-        *(ptr + 5) = -1;
+
+        int cost = 0;
 
         for (int k = 0; k < customers;) {
             // set current customer in 1st pointer
-            // controlPointers[1] = k;
-            *(ptr + 1) = k;
+            controlPointers[1] = k;
 
             // set default for number of items ordered to -1
-            // controlPointers[2] = -1;
-            *(ptr + 2) = -1;
+            controlPointers[2] = -1;
 
             // set default for order validity to 0
             controlPointers[3] = 0;
-            *(ptr + 3) = 0;
 
             // create the pipe
             if (pipe(pipePtrs) < 0) {
@@ -104,10 +96,11 @@ int main() {
                 printf(
                     "Enter the serial number(s) of the item(s) to order from "
                     "the "
-                    "menu. Enter -1 when done: \n");
+                    "menu.Enter -1 when done: \n");
                 int input;
                 while (1) {
                     scanf("%d", &input);
+                    // printf("order input %ld", sizeof(input));
                     if (input == -1) {
                         break;
                     }
@@ -124,38 +117,28 @@ int main() {
                 close(pipePtrs[1]);  // Close the write end of the pipe in the
                                      // parent process
 
-                int i = 0;  // refers to index of items ordered
+                int i = 0;  // refers to number of items ordered
 
                 char orderByCustomer[MSG_SIZE];
-                int *orderPointer = ptr + (10 * k) + 7;
+                int *orderPointer = ptr + 10 * k + 7;
 
                 while (read(pipePtrs[0], orderByCustomer, MSG_SIZE) > 0) {
                     // printf("rec: %s\n", orderByCustomer);
 
-                    // orderPointer[i] = atoi(&orderByCustomer[0]);
-                    *(ptr + (10 * k) + 7 + i) = atoi(&orderByCustomer[0]);
+                    orderPointer[i] = atoi(&orderByCustomer[0]);
                     i++;
                 }
                 close(pipePtrs[0]);  // Close the read end of the pipe in the
                                      // parent process
-                // controlPointers[2] = i;
-                *(ptr + 2) = i;
+                controlPointers[2] = i;
 
-                // while (controlPointers[3] == 0) {
-                // }
-
-                while (*(ptr + 3) == 0) {
+                while (controlPointers[3] == 0) {
                 }
 
                 int flag = 0;
 
-                // if (controlPointers[3] < 0) {
-                //     // order was invalid
-                //     printf("invalid order\n");
-                //     flag = 1;
-                // }
-
-                if (*(ptr + 3) < 0) {
+                if (controlPointers[3] < 0) {
+                    // order was invalid
                     flag = 1;
                 }
 
@@ -169,18 +152,12 @@ int main() {
         }
 
         // wait for bill amount
-        // while (controlPointers[5] < 0) {
-        // }
-
-        while (*(ptr + 5) < 0) {
+        while (controlPointers[5] < 0) {
         }
 
-        // printf("The total bill amount is %d INR.\n", controlPointers[4]);
-        printf("The total bill amount is %d INR.\n", *(ptr + 4));
+        printf("The total bill amount is %d INR.\n", controlPointers[4]);
 
-        // controlPointers[6] = 0;  // set exit signal to default (0) for next
-        // iter
-        *(ptr + 6) = 0;
+        controlPointers[6] = 0;  // set exit signal to default (0) for next iter
     }
 
     shmctl(shmid, IPC_RMID, NULL);

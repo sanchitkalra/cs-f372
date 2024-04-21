@@ -54,3 +54,45 @@ do {
   1. [Peterson Solution](solutions/peterson-solution.md)
   2. [Locks](solutions/locks.md)
   3. [Mutex](solutions/mutex.md)
+  4. [Semaphore](solutions/semaphore.md)
+
+## Classical Syncronisation Problems
+
+### Bounder Buffer Problem
+
+- say the buffer between our producer & consumer if of size n; it cannot be of size infinity or the calls would never block.
+- we'll keep track of 3 things:
+  - mutex (really a semaphore) init to 1. controls access to the buffer
+  - full (number of full slots) init to 0
+  - empty (number of empty slots) init to n
+- producer:
+
+```c
+do {
+  // entry section
+  wait(empty);
+  wait(mutex);
+
+  ... // critical section
+
+  // exit section
+  signal(mutex);
+  signal(full);
+} while (true);
+```
+
+- consumer:
+
+```c
+do {
+  // entry section
+  wait(full);
+  wait(mutex);
+
+  ... // critical section
+
+  // exit section
+  signal(mutex);
+  signal(empty);
+} while (true);
+```

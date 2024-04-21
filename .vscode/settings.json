@@ -3,6 +3,8 @@
     "stdio.h": "c",
     "string.h": "c",
     "stdlib.h": "c",
-    "random": "c"
+    "random": "c",
+    "structs.h": "c",
+    "unistd.h": "c"
   }
 }

@@ -12,9 +12,9 @@
 
 int main() {
     struct Plane plane;
-    printf("Enter plane ID: ");
+    printf("Enter plane ID (inclusive 1-10): ");
     scanf("%d", &plane.id);
-    printf("Enter type of plane: ");
+    printf("Enter type of plane (0 for cargo and 1 for passenger): ");
     scanf("%d", &plane.type);
 
     if (plane.type == 0) {
@@ -86,10 +86,10 @@ int main() {
         wt += 75 * 7;
     }
 
-    printf("Enter Airport Number for Departure: ");
+    printf("Enter Airport Number for Departure (1-10 inclusive): ");
     scanf(&plane.dept);
 
-    printf("Enter Airport Number for Arrival: ");
+    printf("Enter Airport Number for Arrival (1-10 inclusive): ");
     scanf("%d", &plane.arriv);
 
     int key = ftok("airtrafficcontroller.c", "A");
@@ -102,10 +102,15 @@ int main() {
     msgsnd(msgid, &planeMsg, sizeof(planeMsg), 0);
 
     // wait for departure, and exit signal
+    // mtype to listen for is PLANE_EXIT_CLEANUP * 100 + plane.id, for this will
+    // be the type for message to this particular plane
 
     struct PlaneMessage killSignal;
-    msgrcv(msgid, &killSignal, sizeof(struct PlaneMessage), PLANE_EXIT_CLEANUP,
-           0);
+    msgrcv(msgid, &killSignal, sizeof(struct PlaneMessage),
+           PLANE_EXIT_CLEANUP * 100 + plane.id, 0);
+
+    // TODO: print 1.o
+    // TODO: implement logic so that travel time is 30 seconds
 
     return 0;
 }

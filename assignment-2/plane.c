@@ -105,7 +105,24 @@ int main() {
 
     msgsnd(msgid, &planeMsg, sizeof(planeMsg), 0);
 
-    // wait for departure, and exit signal
+    // wait for takeoff
+    // once takeoff, sleep for 30 sec to simulate flight time
+
+    struct PlaneMessage sleepMsg;
+    msgrcv(msgid, &sleepMsg, sizeof(struct PlaneMessage), ATC_PLANE_SLEEP * 100 + plane.id, 0);
+
+    sleep(30); // sim flight time
+
+    // flight now over
+    // send signal to ATC
+
+    struct PlaneMessage informATCSleepOver;
+    informATCSleepOver.mtype = PLANE_INFROM_ATC_SLEEP_OVER;
+    informATCSleepOver.plane = plane;
+
+    msgsnd(msgid, &informATCSleepOver, sizeof(informATCSleepOver), 0);
+
+    // wait exit signal
     // mtype to listen for is PLANE_EXIT_CLEANUP * 100 + plane.id, for this will
     // be the type for message to this particular plane
 

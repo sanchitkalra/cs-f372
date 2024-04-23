@@ -212,6 +212,11 @@ int main() {
             int rc = pthread_create(&tid, NULL, thread_func_arriv, &threadArgs);
             // we will not wait for this thread so as to allow concurrent
             // execution
+        } else if (ATC_INFROM_AIRPORT_CLOSE * 100 + airport_num) {
+            // Mesage from ATC to close the airport
+            // simply break infinite loop
+            
+            break;
         } else {
             // default case
             // put message back into queue

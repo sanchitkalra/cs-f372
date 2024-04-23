@@ -22,11 +22,23 @@ int main() {
     int numOfPlanes = 0;
 
     while (1) {
+        // break out of this infinite loop, and end prog execution
+        if (numOfPlanes == 0 && termination_req_rev == 1) {
+            // send close request to all airports
+            struct TerminationMessage terminationRequest;
+            terminationRequest.msg = "Close Airport";
+            for (int k = 1; k <= n_airports; k++) {
+                terminationRequest.mtype = ATC_INFROM_AIRPORT_CLOSE * 100 + k;
+                msgsnd(msgid, &terminationRequest, sizeof(terminationRequest), IPC_NOWAIT);
+            }
+
+            msgctl(msgid, IPC_RMID, NULL);
+
+            break;
+        };
+
         struct PlaneMessage recMsg;
         int recCode = msgrcv(msgid, &recMsg, sizeof(struct PlaneMessage), 0, 0);
-
-        // break out of this infinite loop, and end prog execution
-        if (numOfPlanes == 0 && termination_req_rev == 1) break;
 
         if (recCode < 0) {
             // msg rcv error
@@ -56,6 +68,21 @@ int main() {
                     break;
                 case DEPT_INFORM_ATC:
                     // dept has completed loading/boarding and takeoff
+
+                    // inform plane process to sleep for 30 sec to simulate flight time
+                    struct PlaneMessage msgPlaneSleep;
+                    msgPlaneSleep.mtype =
+                        ATC_PLANE_SLEEP * 100 + recMsg.plane.id;
+                    msgPlaneSleep.plane = recMsg.plane;
+                    resp = msgsnd(msgid, &msgPlaneSleep,
+                                  sizeof(msgPlaneSleep), IPC_NOWAIT);
+                    if (resp < 0) {
+                        // msg to plane process err
+                        printf("Some error sending sleep request to plane process");
+                    }
+                    break;
+                case PLANE_INFROM_ATC_SLEEP_OVER:
+                    // plane has slept for 30 sec, flight time is over, now need to land our plane
 
                     // notify arrival airport to begin landing & deboarding
                     struct PlaneMessage msgArrivLanding;

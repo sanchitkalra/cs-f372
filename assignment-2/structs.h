@@ -35,6 +35,11 @@ struct Runway {
     pthread_mutex_t mutex;
 };
 
+struct TerminationMessage {
+    int mtype;
+    char* msg;
+};
+
 enum MSG {
     PLANE_TAKEOFF = 1,
     ATC_INFORM_DEPT = 2,  // use as 2*100 + airport_id
@@ -43,4 +48,7 @@ enum MSG {
     ARRIV_INFORM_ATC = 5,
     PLANE_EXIT_CLEANUP = 6,  // use as 6*100 + plane_id
     CLEANUP_EXIT_ATC = 7,
+    ATC_PLANE_SLEEP = 8, // ATC tells plane to sleep for 30 sec to simulate flight time, use as 8*100 + plane_id
+    PLANE_INFROM_ATC_SLEEP_OVER = 9, // Plane informs ATC that flight is over
+    ATC_INFROM_AIRPORT_CLOSE = 10,  // all planes have landed, so all airports must shut down, use as 10*100 + plane_id
 };

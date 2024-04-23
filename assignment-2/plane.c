@@ -55,7 +55,7 @@ int main() {
                 int wt, luggage_wt;
                 char msg[MSG_SIZE_PIPE];
 
-                printf("Enter weight of luggae: ");
+                printf("Enter weight of luggage: ");
                 scanf("%d", &luggage_wt);
 
                 sprintf(msg, "%d", luggage_wt);

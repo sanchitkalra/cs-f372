@@ -30,6 +30,8 @@ int main() {
         int wt = n_cargo * av_wt;
         wt += 2 * 75;
 
+        plane.weight = wt;
+
     } else {
         // passenger
         printf("Enter number of occupied seats: ");
@@ -40,7 +42,7 @@ int main() {
 
         int wt = 0;
 
-        for (int k = 9; k < plane.num_passengers; k++) {
+        for (int k = 0; k < plane.num_passengers; k++) {
             if (pipe(pipePtrs) < 0) {
                 exit(EXIT_FAILURE);
             }
@@ -84,6 +86,8 @@ int main() {
         }
 
         wt += 75 * 7;
+
+        plane.weight = wt;
     }
 
     printf("Enter Airport Number for Departure (1-10 inclusive): ");

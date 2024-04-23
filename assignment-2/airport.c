@@ -8,7 +8,6 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include "sorter.h"
 #include "structs.h"
 
 int compareByCapacity(const void *a, const void *b) {
@@ -116,11 +115,20 @@ int main() {
         "Enter  loadCapacity  of  Runways  (give  as  a  space  separated  "
         "list  in  a single line): ");
 
-    struct Runway loadCap[n_runways + 1];
+    struct Runway loadCap[n_runways +
+                          1];  // n_runways  + 1 -> accomodate the backup runway
+
     for (int k = 0; k < n_runways; k++) {
-        scanf("%d", loadCap[k].capacity);
+        scanf("%d", loadCap[k].capacity);  // set capacity inside struct
+        pthread_mutex_init(&loadCap[k].mutex,
+                           NULL);     // init that runway's mutex lock
+        loadCap[k].runwayID = k + 1;  // set runway ID
     }
+
+    // Add backup runway
     loadCap[n_runways].capacity = 15000;
+    pthread_mutex_init(&loadCap[n_runways].mutex, NULL);
+    loadCap[n_runways].runwayID = n_runways + 1;
 
     // sort this array of structs now
     qsort(loadCap, n_runways + 1, sizeof(struct Runway), compareByCapacity);
@@ -151,7 +159,11 @@ int main() {
 
             // put it in a thread
             pthread_t tid;
-            struct ThreadArgs threadArgs;  // TODO: Initialise this struct
+            struct ThreadArgs threadArgs;
+            threadArgs.msgid = msgid;
+            threadArgs.runways = loadCap;
+            threadArgs.n = n_runways + 1;
+            threadArgs.plane = recMsg.plane;
 
             int rc = pthread_create(&tid, NULL, thread_func_dept, &threadArgs);
             // we will not wait for this thread so as to allow concurrent
@@ -161,7 +173,11 @@ int main() {
 
             // put it in a thread
             pthread_t tid;
-            struct ThreadArgs threadArgs;  // TODO: Initialise this struct
+            struct ThreadArgs threadArgs;
+            threadArgs.msgid = msgid;
+            threadArgs.runways = loadCap;
+            threadArgs.n = n_runways + 1;
+            threadArgs.plane = recMsg.plane;
 
             int rc = pthread_create(&tid, NULL, thread_func_arriv, &threadArgs);
             // we will not wait for this thread so as to allow concurrent

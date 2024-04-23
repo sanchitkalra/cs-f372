@@ -23,7 +23,7 @@ struct PlaneMessage {
 };
 
 struct ThreadArgs {
-    struct Runway runways[11];
+    struct Runway* runways;  // ptr to the array of structs of runways
     int n;               // actual number of runways including the backup runway
     int msgid;           // msg queue identifier
     struct Plane plane;  // reference to the actual plane landing/taking off

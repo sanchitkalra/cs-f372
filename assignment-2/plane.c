@@ -108,10 +108,17 @@ int main() {
     // wait for takeoff
     // once takeoff, sleep for 30 sec to simulate flight time
 
-    struct PlaneMessage sleepMsg;
-    msgrcv(msgid, &sleepMsg, sizeof(struct PlaneMessage), ATC_PLANE_SLEEP * 100 + plane.id, 0);
+    // printf("Plane waiting for sleep sign \n");
 
-    sleep(30); // sim flight time
+    struct PlaneMessage sleepMsg;
+    msgrcv(msgid, &sleepMsg, sizeof(struct PlaneMessage),
+           ATC_PLANE_SLEEP * 100 + plane.id, 0);
+
+    // printf("Plane got sleep sign \n");
+
+    sleep(30);  // sim flight time
+
+    // printf("Plane sleep over \n");
 
     // flight now over
     // send signal to ATC
@@ -121,6 +128,8 @@ int main() {
     informATCSleepOver.plane = plane;
 
     msgsnd(msgid, &informATCSleepOver, sizeof(informATCSleepOver), 0);
+
+    // printf("sleep done informed \n");
 
     // wait exit signal
     // mtype to listen for is PLANE_EXIT_CLEANUP * 100 + plane.id, for this will
@@ -135,8 +144,6 @@ int main() {
         op,
         "Plane %d has successfully travelled from Airport %d to Airport %d.",
         plane.id, plane.dept, plane.arriv);
-
-    // TODO: implement logic so that travel time is 30 seconds
 
     return 0;
 }

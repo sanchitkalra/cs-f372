@@ -22,17 +22,24 @@ int main() {
     int numOfPlanes = 0;
 
     while (1) {
+        // printf("%d,, %d \n", numOfPlanes, termination_req_rev);
         // break out of this infinite loop, and end prog execution
         if (numOfPlanes == 0 && termination_req_rev == 1) {
             // send close request to all airports
-            struct TerminationMessage terminationRequest;
-            terminationRequest.msg = "Close Airport";
+            // struct TerminationMessage terminationRequest;
+            // terminationRequest.msg = "Close Airport";
+            struct Plane planeTemp;
+            planeTemp.num_passengers = n_airports;
+            struct PlaneMessage terminationRequest;
+            terminationRequest.plane = planeTemp;
             for (int k = 1; k <= n_airports; k++) {
                 terminationRequest.mtype = ATC_INFROM_AIRPORT_CLOSE * 100 + k;
-                msgsnd(msgid, &terminationRequest, sizeof(terminationRequest), IPC_NOWAIT);
+                int r = msgsnd(msgid, &terminationRequest,
+                               sizeof(terminationRequest), IPC_NOWAIT);
+                // printf("termination for %d, status: %d \n", k, r);
             }
 
-            msgctl(msgid, IPC_RMID, NULL);
+            // msgctl(msgid, IPC_RMID, NULL);
 
             break;
         };
@@ -49,6 +56,7 @@ int main() {
                 case PLANE_TAKEOFF:
                     // new plane is ready for takeoff
                     if (termination_req_rev == 0) {
+                        // printf("plane req takeoff \n");
                         // only accept new plane requests if termination req has
                         // not been received
                         numOfPlanes++;
@@ -60,6 +68,7 @@ int main() {
                         msgDeptTakeoff.plane = recMsg.plane;
                         resp = msgsnd(msgid, &msgDeptTakeoff,
                                       sizeof(msgDeptTakeoff), IPC_NOWAIT);
+                        // printf("dept airport msg sent \n");
                         if (resp < 0) {
                             // msg to dept airport err
                             printf("Some error sending plane to dept airport");
@@ -67,22 +76,29 @@ int main() {
                     }
                     break;
                 case DEPT_INFORM_ATC:
+                    // printf("boarding done \n");
                     // dept has completed loading/boarding and takeoff
 
-                    // inform plane process to sleep for 30 sec to simulate flight time
+                    // inform plane process to sleep for 30 sec to simulate
+                    // flight time
                     struct PlaneMessage msgPlaneSleep;
                     msgPlaneSleep.mtype =
                         ATC_PLANE_SLEEP * 100 + recMsg.plane.id;
                     msgPlaneSleep.plane = recMsg.plane;
-                    resp = msgsnd(msgid, &msgPlaneSleep,
-                                  sizeof(msgPlaneSleep), IPC_NOWAIT);
+                    resp = msgsnd(msgid, &msgPlaneSleep, sizeof(msgPlaneSleep),
+                                  IPC_NOWAIT);
+                    // printf("Plane fgiven for sleep sign \n");
                     if (resp < 0) {
                         // msg to plane process err
-                        printf("Some error sending sleep request to plane process");
+                        printf(
+                            "Some error sending sleep request to plane "
+                            "process");
                     }
                     break;
                 case PLANE_INFROM_ATC_SLEEP_OVER:
-                    // plane has slept for 30 sec, flight time is over, now need to land our plane
+                    // printf("Plane tell sleep done \n");
+                    // plane has slept for 30 sec, flight time is over, now need
+                    // to land our plane
 
                     // notify arrival airport to begin landing & deboarding
                     struct PlaneMessage msgArrivLanding;
@@ -91,6 +107,7 @@ int main() {
                     msgArrivLanding.plane = recMsg.plane;
                     resp = msgsnd(msgid, &msgArrivLanding,
                                   sizeof(msgArrivLanding), IPC_NOWAIT);
+                    // printf("arriv informed \n");
                     if (resp < 0) {
                         // msg to dept airport err
                         printf("Some error sending plane to arriv airport");

@@ -178,13 +178,15 @@ int main() {
         // the message queue
         int recCode = msgrcv(msgid, &recMsg, sizeof(struct PlaneMessage), 0, 0);
         if (recCode < 0) {
-            printf("Error reading message queue \n");
+            // printf("Error reading message queue \n");
             continue;
         }
 
         long mtype = recMsg.mtype;
+        // printf("mytpe: %d \n", mtype);
 
         if (mtype == ATC_INFORM_DEPT * 100 + airport_num) {
+            // printf("dept airport \n");
             // message for departure airport
 
             // put it in a thread
@@ -199,6 +201,7 @@ int main() {
             // we will not wait for this thread so as to allow concurrent
             // execution
         } else if (mtype == ATC_INFORM_ARRIV * 100 + airport_num) {
+            // printf("arrival airport  \n");
             // message for arriv airport
 
             // put it in a thread
@@ -212,12 +215,17 @@ int main() {
             int rc = pthread_create(&tid, NULL, thread_func_arriv, &threadArgs);
             // we will not wait for this thread so as to allow concurrent
             // execution
-        } else if (ATC_INFROM_AIRPORT_CLOSE * 100 + airport_num) {
+        } else if (mtype == ATC_INFROM_AIRPORT_CLOSE * 100 + airport_num) {
+            // printf("kll sig  \n");
+            if (recMsg.plane.num_passengers == airport_num) {
+                msgctl(msgid, IPC_RMID, NULL);
+            }
             // Mesage from ATC to close the airport
             // simply break infinite loop
-            
+
             break;
         } else {
+            // printf("default  \n");
             // default case
             // put message back into queue
 

@@ -56,14 +56,14 @@ int main() {
                 printf("Enter weight of luggae: ");
                 scanf("%d", &luggage_wt);
 
-                sprintf(msg, MSG_SIZE_PIPE, "%d", luggage_wt);
-                write(pipePtrs[1], MSG_SIZE_PIPE, msg);
+                sprintf(msg, "%d", luggage_wt);
+                write(pipePtrs[1], msg, MSG_SIZE_PIPE);
 
                 printf("Enter your body weight: ");
                 scanf("%d", &wt);
 
-                sprintf(msg, MSG_SIZE_PIPE, "%d", wt);
-                write(pipePtrs[1], MSG_SIZE_PIPE, msg);
+                sprintf(msg, "%d", wt);
+                write(pipePtrs[1], msg, MSG_SIZE_PIPE);
 
                 close(pipePtrs[1]);
             } else if (pid > 0) {
@@ -87,7 +87,7 @@ int main() {
     }
 
     printf("Enter Airport Number for Departure (1-10 inclusive): ");
-    scanf(&plane.dept);
+    scanf("%d", &plane.dept);
 
     printf("Enter Airport Number for Arrival (1-10 inclusive): ");
     scanf("%d", &plane.arriv);

@@ -8,7 +8,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include "sorter.h"
+// #include "sorter.h"s
 #include "structs.h"
 
 int compareByCapacity(const void *a, const void *b) {
@@ -55,8 +55,11 @@ void *thread_func_dept(void *arg) {
         printf("Msg to ATC failed");
     }
 
-    printf("Plane %d has completed boarding/loading and taken off from Runway No. %d of Airport No. %d.\n", threadArgs->plane.planeID, index + 1, threadArgs->runways[index].airportID);
-            // Printing message saying boarding has completed and plane taken off
+    printf(
+        "Plane %d has completed boarding/loading and taken off from Runway No. "
+        "%d of Airport No. %d.\n",
+        threadArgs->plane.id, index + 1, threadArgs->plane.dept);
+    // Printing message saying boarding has completed and plane taken off
 }
 
 void *thread_func_arriv(void *arg) {
@@ -99,8 +102,11 @@ void *thread_func_arriv(void *arg) {
         printf("Msg to ATC failed");
     }
 
-    printf("Plane %d has completed boarding/loading and taken off from Runway No. %d of Airport No. %d.\n", threadArgs->plane.planeID, index + 1, threadArgs->runways[index].airportID);
-       // Printing message saying landing & deboarding has completed
+    printf(
+        "Plane %d has completed boarding/loading and taken off from Runway No. "
+        "%d of Airport No. %d.\n",
+        threadArgs->plane.id, index + 1, threadArgs->plane.dept);
+    // Printing message saying landing & deboarding has completed
 }
 
 int main() {
@@ -156,10 +162,10 @@ int main() {
             struct ThreadArgs threadArgs;  // TODO: Initialise this struct
             struct ThreadArgs threadArgs;
             threadArgs.plane = recMsg.plane;
-            memcpy(threadArgs.runways, loadCap, sizeof(loadCap));  // copy runways array
+            memcpy(threadArgs.runways, loadCap,
+                   sizeof(loadCap));  // copy runways array
             threadArgs.n = n_runways;
             threadArgs.msgid = msgid;
-
 
             int rc = pthread_create(&tid, NULL, thread_func_dept, &threadArgs);
             // we will not wait for this thread so as to allow concurrent
@@ -170,7 +176,8 @@ int main() {
             pthread_t tid;
             struct ThreadArgs threadArgs;  // TODO: Initialise this struct
             threadArgs.plane = recMsg.plane;
-            memcpy(threadArgs.runways, loadCap, sizeof(loadCap));  // copy runways array
+            memcpy(threadArgs.runways, loadCap,
+                   sizeof(loadCap));  // copy runways array
             threadArgs.n = n_runways;
             threadArgs.msgid = msgid;
 

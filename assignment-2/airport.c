@@ -54,7 +54,12 @@ void *thread_func_dept(void *arg) {
         printf("Msg to ATC failed");
     }
 
-    // TODO: Print message saying boarding has completed and plane taken off
+    // Print message saying boarding has completed and plane taken off
+    printf(
+        "Plane %d has completed boarding/loading and taken off from Runway No. "
+        "%d of Airport No. %d.\n",
+        threadArgs->plane.id, threadArgs->runways[index].runwayID,
+        threadArgs->plane.dept);
 }
 
 void *thread_func_arriv(void *arg) {
@@ -97,7 +102,12 @@ void *thread_func_arriv(void *arg) {
         printf("Msg to ATC failed");
     }
 
-    // TODO: Print message saying landing & deboarding has completed
+    // Print message saying landing & deboarding has completed
+    printf(
+        "Plane %d has has landed on Runway No. "
+        "%d of Airport No. %d.\n",
+        threadArgs->plane.id, threadArgs->runways[index].runwayID,
+        threadArgs->plane.arriv);
 }
 
 int main() {

@@ -23,10 +23,16 @@ struct PlaneMessage {
 };
 
 struct ThreadArgs {
-    int runways[11];
-    int n;
-    int msgid;  // msg queue identifier
-    struct Plane plane;
+    struct Runway runways[11];
+    int n;               // actual number of runways including the backup runway
+    int msgid;           // msg queue identifier
+    struct Plane plane;  // reference to the actual plane landing/taking off
+};
+
+struct Runway {
+    int runwayID;
+    int capacity;
+    pthread_mutex_t mutex;
 };
 
 enum MSG {

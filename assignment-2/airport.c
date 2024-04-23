@@ -1,6 +1,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #include <sys/types.h>
@@ -10,13 +11,24 @@
 #include "sorter.h"
 #include "structs.h"
 
-void *thread_func_dept(void *arg) {
-    // TODO: Implement thread specific stuff
+int compareByCapacity(const void *a, const void *b) {
+    return ((struct Runway *)a)->capacity - ((struct Runway *)b)->capacity;
+}
 
+void *thread_func_dept(void *arg) {
     struct ThreadArgs *threadArgs = (struct ThreadArgs *)arg;
 
-    // TODO: find optimal runway
-    // TODO: Acquire mutex to use optimal runway
+    // find optimal runway
+    int index;  // index of the array element corrsp to the optimal runway
+    for (int k = 0; k < threadArgs->n; k++) {
+        if (threadArgs->runways[k].capacity >= threadArgs->plane.weight) {
+            index = k;
+            break;
+        }
+    }
+
+    // Acquire mutex to use optimal runway
+    pthread_mutex_lock(&(threadArgs->runways[index].mutex));
 
     // Runway is now available
     // Board/Load the plane
@@ -29,7 +41,8 @@ void *thread_func_dept(void *arg) {
 
     sleep(2);  // taking off
 
-    // TODO: Release mutex lock
+    // Release mutex lock
+    pthread_mutex_unlock(&(threadArgs->runways[index].mutex));
 
     // now send message to ATC that plane has taken off
 
@@ -46,12 +59,19 @@ void *thread_func_dept(void *arg) {
 }
 
 void *thread_func_arriv(void *arg) {
-    // TODO: Implement thread specific stuff
-
     struct ThreadArgs *threadArgs = (struct ThreadArgs *)arg;
 
-    // TODO: find optimal runway
-    // TODO: Acquire mutex to use optimal runway
+    // find optimal runway
+    int index;  // index of the array element corrsp to the optimal runway
+    for (int k = 0; k < threadArgs->n; k++) {
+        if (threadArgs->runways[k].capacity >= threadArgs->plane.weight) {
+            index = k;
+            break;
+        }
+    }
+
+    // Acquire mutex to use optimal runway
+    pthread_mutex_lock(&(threadArgs->runways[index].mutex));
 
     // Runway is now available
     // Land the plane
@@ -64,7 +84,8 @@ void *thread_func_arriv(void *arg) {
 
     sleep(3);  // deboarding
 
-    // TODO: Release mutex lock
+    // Release mutex lock
+    pthread_mutex_unlock(&(threadArgs->runways[index].mutex));
 
     // now send message to ATC that plane has landed & deboarded
 
@@ -95,11 +116,14 @@ int main() {
         "Enter  loadCapacity  of  Runways  (give  as  a  space  separated  "
         "list  in  a single line): ");
 
-    int loadCap[11];
+    struct Runway loadCap[n_runways + 1];
     for (int k = 0; k < n_runways; k++) {
-        scanf("%d", loadCap[k]);
+        scanf("%d", loadCap[k].capacity);
     }
-    loadCap[n_runways] = 15000;
+    loadCap[n_runways].capacity = 15000;
+
+    // sort this array of structs now
+    qsort(loadCap, n_runways + 1, sizeof(struct Runway), compareByCapacity);
 
     // airport initialised
     // now listen for different dept & arrivals
@@ -128,6 +152,7 @@ int main() {
             // put it in a thread
             pthread_t tid;
             struct ThreadArgs threadArgs;  // TODO: Initialise this struct
+
             int rc = pthread_create(&tid, NULL, thread_func_dept, &threadArgs);
             // we will not wait for this thread so as to allow concurrent
             // execution
@@ -137,6 +162,7 @@ int main() {
             // put it in a thread
             pthread_t tid;
             struct ThreadArgs threadArgs;  // TODO: Initialise this struct
+
             int rc = pthread_create(&tid, NULL, thread_func_arriv, &threadArgs);
             // we will not wait for this thread so as to allow concurrent
             // execution

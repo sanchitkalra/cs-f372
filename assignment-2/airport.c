@@ -45,6 +45,27 @@ void *thread_func_dept(void *arg) {
 
     // now send message to ATC that plane has taken off
 
+    // append to AirTrafficController.txt that plane has taken off and will land
+    // at arriv airport
+    FILE *fptr;
+    fptr = fopen("./AirTrafficController.txt", 'a');
+
+    if (fptr == NULL) {
+        // opening file was unsuccessful
+    } else {
+        // file opened successfully
+        char op[1000];
+        sprintf(op,
+                "Plane %d has departed from Airport %d and will land at "
+                "Airport %d.",
+                threadArgs->plane.id, threadArgs->plane.dept,
+                threadArgs->plane.arriv);
+        fputs(op, fptr);
+    }
+
+    // Close access and write data
+    fclose(fptr);
+
     struct PlaneMessage planeMsg;
     planeMsg.mtype = DEPT_INFORM_ATC;
     planeMsg.plane = threadArgs->plane;
@@ -146,7 +167,7 @@ int main() {
     // airport initialised
     // now listen for different dept & arrivals
 
-    int key = ftok("airtrafficcontroller.c", "A");
+    int key = ftok("airtrafficcontroller.c", 'A');
     int msgid = msgget(key, 0666 | IPC_CREAT);
 
     while (1) {

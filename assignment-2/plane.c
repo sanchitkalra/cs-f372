@@ -35,7 +35,7 @@ int main() {
         printf("Enter number of occupied seats: ");
         scanf("%d", &plane.num_passengers);
 
-        int key = ftok("plane.c", "A");
+        int key = ftok("plane.c", 'A');
         int pipePtrs[2];
 
         int wt = 0;
@@ -92,7 +92,7 @@ int main() {
     printf("Enter Airport Number for Arrival (1-10 inclusive): ");
     scanf("%d", &plane.arriv);
 
-    int key = ftok("airtrafficcontroller.c", "A");
+    int key = ftok("airtrafficcontroller.c", 'A');
     int msgid = msgget(key, 0666 | IPC_CREAT);
 
     struct PlaneMessage planeMsg;
@@ -109,7 +109,12 @@ int main() {
     msgrcv(msgid, &killSignal, sizeof(struct PlaneMessage),
            PLANE_EXIT_CLEANUP * 100 + plane.id, 0);
 
-    // TODO: print 1.o
+    char op[1000];
+    sprintf(
+        op,
+        "Plane %d has successfully travelled from Airport %d to Airport %d.",
+        plane.id, plane.dept, plane.arriv);
+
     // TODO: implement logic so that travel time is 30 seconds
 
     return 0;

@@ -10,11 +10,13 @@
 
 int main() {
     while (1) {
-        printf("Do you want the Air Traffic Control System to terminate? Y for yes and N for no: ");
+        printf(
+            "Do you want the Air Traffic Control System to terminate? Y for "
+            "yes and N for no: ");
         char c;
         scanf("%c", &c);
         if (c == 'Y' || c == 'y') {
-            int key = ftok("airtrafficcontroller.c", "A");
+            int key = ftok("airtrafficcontroller.c", 'A');
             int msgid = msgget(key, 0666 | IPC_CREAT);
 
             struct PlaneMessage msg;

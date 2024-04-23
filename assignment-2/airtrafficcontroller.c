@@ -15,7 +15,7 @@ int main() {
         "inclusive): ");
     scanf("%d", &n_airports);
 
-    int key = ftok("airtrafficcontroller.c", "A");
+    int key = ftok("airtrafficcontroller.c", 'A');
     int msgid = msgget(key, 0666 | IPC_CREAT);
 
     int termination_req_rev = 0;  // 1 when received

@@ -149,11 +149,14 @@ int main() {
     struct Runway loadCap[n_runways +
                           1];  // n_runways  + 1 -> accomodate the backup runway
 
-    for (int k = 0; k < n_runways; k++) {
+    for (int k = 0; k < n_runways;) {
         scanf("%d", &loadCap[k].capacity);  // set capacity inside struct
-        pthread_mutex_init(&loadCap[k].mutex,
-                           NULL);     // init that runway's mutex lock
-        loadCap[k].runwayID = k + 1;  // set runway ID
+        if (loadCap[k].capacity >= 1000 && loadCap[k].capacity <= 12000) {
+            pthread_mutex_init(&loadCap[k].mutex,
+                               NULL);     // init that runway's mutex lock
+            loadCap[k].runwayID = k + 1;  // set runway ID
+            k++;
+        }
     }
 
     // Add backup runway

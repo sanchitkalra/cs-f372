@@ -71,6 +71,7 @@ int main() {
             } else if (pid > 0) {
                 // parent
 
+                close(pipePtrs[1]);
                 char msg[MSG_SIZE_PIPE];
 
                 while (read(pipePtrs[0], msg, MSG_SIZE_PIPE) > 0) {

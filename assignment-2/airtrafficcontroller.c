@@ -33,6 +33,7 @@ int main() {
             // msg rcv error
             printf("Some error fetching message");
         } else {
+            int resp;
             switch (recMsg.mtype) {
                 case PLANE_TAKEOFF:
                     // new plane is ready for takeoff
@@ -46,8 +47,8 @@ int main() {
                         msgDeptTakeoff.mtype =
                             ATC_INFORM_DEPT * 100 + recMsg.plane.dept;
                         msgDeptTakeoff.plane = recMsg.plane;
-                        int resp = msgsnd(msgid, &msgDeptTakeoff,
-                                          sizeof(msgDeptTakeoff), IPC_NOWAIT);
+                        resp = msgsnd(msgid, &msgDeptTakeoff,
+                                      sizeof(msgDeptTakeoff), IPC_NOWAIT);
                         if (resp < 0) {
                             // msg to dept airport err
                             printf("Some error sending plane to dept airport");
@@ -62,8 +63,8 @@ int main() {
                     msgArrivLanding.mtype =
                         ATC_INFORM_ARRIV * 100 + recMsg.plane.dept;
                     msgArrivLanding.plane = recMsg.plane;
-                    int resp = msgsnd(msgid, &msgArrivLanding,
-                                      sizeof(msgArrivLanding), IPC_NOWAIT);
+                    resp = msgsnd(msgid, &msgArrivLanding,
+                                  sizeof(msgArrivLanding), IPC_NOWAIT);
                     if (resp < 0) {
                         // msg to dept airport err
                         printf("Some error sending plane to arriv airport");
@@ -76,8 +77,8 @@ int main() {
                     msgPlaneExit.mtype =
                         PLANE_EXIT_CLEANUP * 100 + recMsg.plane.id;
                     msgPlaneExit.plane = recMsg.plane;
-                    int resp = msgsnd(msgid, &msgPlaneExit,
-                                      sizeof(msgPlaneExit), IPC_NOWAIT);
+                    resp = msgsnd(msgid, &msgPlaneExit, sizeof(msgPlaneExit),
+                                  IPC_NOWAIT);
                     if (resp < 0) {
                         // msg to dept airport err
                         printf("Some error sending plane kill request");
@@ -90,8 +91,7 @@ int main() {
                 default:
                     // NOTA
                     // Insert message back into the queue
-                    int resp =
-                        msgsnd(msgid, &recMsg, sizeof(recMsg), IPC_NOWAIT);
+                    resp = msgsnd(msgid, &recMsg, sizeof(recMsg), IPC_NOWAIT);
                     if (resp < 0) {
                         printf("Some error sending message back into queue");
                     }

@@ -48,7 +48,7 @@ void *thread_func_dept(void *arg) {
     // append to AirTrafficController.txt that plane has taken off and will land
     // at arriv airport
     FILE *fptr;
-    fptr = fopen("./AirTrafficController.txt", 'a');
+    fptr = fopen("./AirTrafficController.txt", "a");
 
     if (fptr == NULL) {
         // opening file was unsuccessful
@@ -150,7 +150,7 @@ int main() {
                           1];  // n_runways  + 1 -> accomodate the backup runway
 
     for (int k = 0; k < n_runways; k++) {
-        scanf("%d", loadCap[k].capacity);  // set capacity inside struct
+        scanf("%d", &loadCap[k].capacity);  // set capacity inside struct
         pthread_mutex_init(&loadCap[k].mutex,
                            NULL);     // init that runway's mutex lock
         loadCap[k].runwayID = k + 1;  // set runway ID

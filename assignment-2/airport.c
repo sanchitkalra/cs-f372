@@ -57,7 +57,7 @@ void *thread_func_dept(void *arg) {
         char op[1000];
         sprintf(op,
                 "Plane %d has departed from Airport %d and will land at "
-                "Airport %d.",
+                "Airport %d.\n",
                 threadArgs->plane.id, threadArgs->plane.dept,
                 threadArgs->plane.arriv);
         fputs(op, fptr);
@@ -176,8 +176,7 @@ int main() {
         // we will listen for all kinds of message but care only about those we
         // are interested in, we'll discard the rest, and insert them back into
         // the message queue
-        int recCode =
-            msgrcv(msgid, &recMsg, sizeof(struct PlaneMessage), 0, IPC_NOWAIT);
+        int recCode = msgrcv(msgid, &recMsg, sizeof(struct PlaneMessage), 0, 0);
         if (recCode < 0) {
             printf("Error reading message queue \n");
             continue;

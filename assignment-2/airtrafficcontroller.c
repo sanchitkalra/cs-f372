@@ -23,8 +23,7 @@ int main() {
 
     while (1) {
         struct PlaneMessage recMsg;
-        int recCode =
-            msgrcv(msgid, &recMsg, sizeof(struct PlaneMessage), 0, IPC_NOWAIT);
+        int recCode = msgrcv(msgid, &recMsg, sizeof(struct PlaneMessage), 0, 0);
 
         // break out of this infinite loop, and end prog execution
         if (numOfPlanes == 0 && termination_req_rev == 1) break;
@@ -61,7 +60,7 @@ int main() {
                     // notify arrival airport to begin landing & deboarding
                     struct PlaneMessage msgArrivLanding;
                     msgArrivLanding.mtype =
-                        ATC_INFORM_ARRIV * 100 + recMsg.plane.dept;
+                        ATC_INFORM_ARRIV * 100 + recMsg.plane.arriv;
                     msgArrivLanding.plane = recMsg.plane;
                     resp = msgsnd(msgid, &msgArrivLanding,
                                   sizeof(msgArrivLanding), IPC_NOWAIT);

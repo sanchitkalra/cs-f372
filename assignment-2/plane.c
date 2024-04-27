@@ -137,6 +137,7 @@ int main() {
     // be the type for message to this particular plane
 
     struct PlaneMessage killSignal;
+    // printf("%d\n", PLANE_EXIT_CLEANUP * 100 + plane.id);
     msgrcv(msgid, &killSignal, sizeof(struct PlaneMessage),
            PLANE_EXIT_CLEANUP * 100 + plane.id, 0);
 
@@ -145,6 +146,9 @@ int main() {
         op,
         "Plane %d has successfully travelled from Airport %d to Airport %d.",
         plane.id, plane.dept, plane.arriv);
+    printf("%s\n", op);
+
+    // exit(EXIT_SUCCESS);
 
     return 0;
 }

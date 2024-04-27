@@ -52,6 +52,7 @@ int main() {
             printf("Some error fetching message");
         } else {
             int resp;
+            // printf("rcv msg %d \n", recMsg.mtype);
             switch (recMsg.mtype) {
                 case PLANE_TAKEOFF:
                     // new plane is ready for takeoff

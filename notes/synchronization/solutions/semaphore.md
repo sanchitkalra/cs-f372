@@ -5,7 +5,7 @@
 - wait -> entry section, signal -> exit section
 - wait and signal should not be executed by two processes simultaneously and they are themselves atomic operations
 
-```
+```c
 // semaphore implementation with busy waiting
 wait (S) {
     while (S <= 0) {
@@ -65,3 +65,42 @@ signal(S) {
 - **Deadlock**: two or more processes are waiting indefinitely for an event that can be caused by only one of the waiting processes. essentially, a loop kind of condition occurs, say P1 is waiting for P2 to do something (say x) which depends on P1 itself doing something (say y) which depends on P2 doing x, and a cycle is formed. Now because both are blocked, they are in a deadlock situation.
 - Incorrect code -> deadlock will always occur, all it says is that a deadlock _may_ occur but nonetheless the code is considered unsafe.
 - **Starvation**: Starvation issues can be encountered with semaphores if we use a LIFO queue.
+
+## POSIX API
+
+- functions present in the `<semaphore.h>` header file
+- two kinds -> named & unnamed semaphores
+
+### Initialisation
+
+- syntax`int sem_init(sem_t* sem, int pshared, unsigned int value)`
+  - sem: pointer to a semaphore variables
+  - pshared: 0 -> shared among threads of the same process; 1 -> shared among different processes
+  - value: initial value of semaphore; this is usually the max value of the semaphore
+- reinitialising an already initialised semaphore => undefined behaviour
+- successful init call -> returns 0; failed init call -> returns error code
+
+### Destroy
+
+- syntax: `int sem_destroy(sem_t* sem)`
+  - sem: pointer to a semaphore init using sem_init
+- using destroyed semaphore -> undefined behaviour until reinit
+- destroying an in-use semaphore (a semaphore other process are waiting on or some processes/threads in the critical section) -> undefined behaviour
+- successful call -> 0; failed call -> error code
+
+### Wait
+
+- syntax: `int sem_wait(sem_t* sem)`
+  - sem: pointer to a semaphore
+- decrement value of semaphore
+- if val != 0 -> value decrements by 1 & fn returns
+- if val == 0 -> execution of process/thread is blocked until value increased to non-zero number
+- successful call -> return 0; failed call -> error code
+
+### Post
+
+- syntax: `int sem_post(sem_t* sem)`
+  - sem: pointer to a semaphore
+- if value non-zero & not the max -> the value is incremented and fn returns; in this case no process needs to be woken up, because nobody is waiting in the first place
+- if value == 0 & another process is blocked on a sem_wait call -> process is woken up & proceeds to lock the semaphore
+- successful call -> return 0; failed call -> error code
